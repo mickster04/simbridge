@@ -1,5 +1,5 @@
 import { Controller, Get, Query, StreamableFile, Response, ParseIntPipe } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { contentType } from 'mime-types';
 import { FileService } from './file.service';
 
@@ -16,18 +16,19 @@ export class UtilityController {
         description: 'A streamed converted png image',
         type: StreamableFile,
     })
+    @ApiQuery({ name: 'directoryname', type: String, required: false })
     async getPdf(
         @Query('filename') filename: string,
         @Query('pagenumber', ParseIntPipe) pagenumber: number,
         @Response({ passthrough: true }) res,
-        @Query('dirname') dirname?: string,
+        @Query('directoryname') directoryname?: string,
     ): Promise<StreamableFile> {
-        if (undefined === dirname) {
-            dirname = this.RES_PDF;
+        if (undefined === directoryname) {
+            directoryname = this.RES_PDF;
         } else {
-            dirname = this.RES_PDF + dirname;
+            directoryname = this.RES_PDF + directoryname;
         }
-        const convertedPdfFile = await this.fileService.getConvertedPdfFile(`${dirname}`, `${filename}`, pagenumber);
+        const convertedPdfFile = await this.fileService.getConvertedPdfFile(`${directoryname}`, `${filename}`, pagenumber);
 
         res.set({
             'Content-Type': 'image/png',
@@ -43,13 +44,14 @@ export class UtilityController {
         description: 'An array of all the filenames within the pdfs folder',
         type: [String],
     })
-    async getPdfFileList(@Query('dirname') dirname?: string) {
-        if (undefined === dirname) {
-            dirname = this.RES_PDF;
+    @ApiQuery({ name: 'directoryname', type: String, required: false })
+    async getPdfFileList(@Query('directoryname') directoryname?: string) {
+        if (undefined === directoryname) {
+            directoryname = this.RES_PDF;
         } else {
-            dirname = this.RES_PDF + dirname;
+            directoryname = this.RES_PDF + directoryname;
         }
-        return this.fileService.getFilenames(`${dirname}`);
+        return this.fileService.getFilenames(`${directoryname}`);
     }
 
     @Get('pdf/listdir')
@@ -58,13 +60,14 @@ export class UtilityController {
         description: 'An array of all the directories within the pdfs folder',
         type: [String],
     })
-    async getPdfDirList(@Query('dirname') dirname?: string) {
-        if (undefined === dirname) {
-            dirname = this.RES_PDF;
+    @ApiQuery({ name: 'directoryname', type: String, required: false })
+    async getPdfDirList(@Query('directoryname') directoryname?: string) {
+        if (undefined === directoryname) {
+            directoryname = this.RES_PDF;
         } else {
-            dirname = this.RES_PDF + dirname;
+            directoryname = this.RES_PDF + directoryname;
         }
-        return this.fileService.getFoldernames(`${dirname}`);
+        return this.fileService.getFoldernames(`${directoryname}`);
     }
 
     @Get('pdf/numpages')
@@ -73,13 +76,14 @@ export class UtilityController {
         description: 'Returns the number of pages in the pdf',
         type: Number,
     })
-    async getNumberOfPages(@Query('filename') filename: string, @Query('dirname') dirname?: string): Promise<number> {
-        if (undefined === dirname) {
-            dirname = this.RES_PDF;
+    @ApiQuery({ name: 'directoryname', type: String, required: false })
+    async getNumberOfPages(@Query('filename') filename: string, @Query('directoryname') directoryname?: string): Promise<number> {
+        if (undefined === directoryname) {
+            directoryname = this.RES_PDF;
         } else {
-            dirname = this.RES_PDF + dirname;
+            directoryname = this.RES_PDF + directoryname;
         }
-        return this.fileService.getNumberOfPdfPages(`${dirname}`, `${filename}`);
+        return this.fileService.getNumberOfPdfPages(`${directoryname}`, `${filename}`);
     }
 
     @Get('image')
